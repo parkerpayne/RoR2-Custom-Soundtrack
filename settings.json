@@ -1,0 +1,124 @@
+{
+    // scenes up to date as of 1.5.2024
+
+    // where the mod should look for music tracks
+    // leave empty to use plugin directory
+    "trackPath": "",
+
+    // what to do when multiple tracks are matched to a scene
+    // "repeat" - play and repeat a random matched track
+    // "next" - play through all matched tracks in order of being added
+    // "shuffle" - play through all matched tracks in random order
+    "playbackMode": "next",
+
+    // a list of scene names can be found here: https://risk-of-thunder.github.io/R2Wiki/Mod-Creation/Developer-Reference/Scene-Names/
+    "playlists": [
+        {
+            "scenes": [ "mysteryspace" ], // A Moment, Fractured
+            "tracks": [ "example.mp3", "folder/example2.mp3" ]
+        },
+        {
+            "scenes": [ "limbo" ], // A Moment, Whole
+            "tracks": []
+        },
+        {
+            "scenes": [ "goolake", "itgoolake" ], // Abandoned Aqueduct
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "dampcavesimple", "itdampcave" ], // Abyssal Depths
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "ancientloft", "itancientloft" ], // Aphelian Sanctuary
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "bazaar" ], // Bazaar Between Time
+            "tracks": []
+        },
+        {
+            "scenes": [ "artifactworld" ], // Bulwark's Ambry
+            "tracks": []
+        },
+        {
+            "scenes": [ "moon", "moon2", "itmoon" ], // Commencement
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "blackbeach", "blackbeach2" ], // Distant Roost
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "goldshores" ], // Gilded Coast
+            "tracks": []
+        },
+        {
+            "scenes": [ "crystalworld", "eclipseworld", "infinitetowerworld", "intro", "loadingbasic", "lobby", "logbook", "outro", "splash", "title" ], // Main Menu
+            "tracks": []
+        },
+        {
+            "scenes": [ "frozenwall", "itfrozenwall" ], // Rallypoint Delta
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "wispgraveyard" ], // Scorched Acres
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "snowyforest" ], // Siphoned Forest
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "shipgraveyard" ], // Siren's Call
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "skymeadow", "itskymeadow" ], // Sky Meadow
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "sulfurpools" ], // Sulfur Pools
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "rootjungle" ], // Sundered Grove
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "voidraid" ], // The Planetarium
+            "tracks": []
+        },
+        {
+            "scenes": [ "golemplains", "golemplains2", "itgolemplains" ], // Titanic Plains
+            "tracks": [],
+            "bossTracks": []
+        },
+        {
+            "scenes": [ "arena" ], // Void Fields
+            "tracks": []
+        },
+        {
+            "scenes": [ "voidstage" ], // Void Locus
+            "tracks": []
+        },
+        {
+            "scenes": [ "foggyswamp" ], // Wetland Aspect
+            "tracks": [],
+            "bossTracks": []
+        }
+    ]
+
+}

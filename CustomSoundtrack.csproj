@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MMHOOK.RoR2"
+						  Version="2022.9.20">
+			<NoWarn>NU1701</NoWarn>
+		</PackageReference>
+		<PackageReference Include="NAudio"
+						  Version="1.10.0" />
+		<PackageReference Include="RoR2BepInExPack"
+						  Version="1.7.0" />
+	</ItemGroup>
+
+</Project>
