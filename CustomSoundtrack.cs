@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using UnityEngine.SceneManagement;
 using Path = System.IO.Path;
@@ -29,8 +28,13 @@ namespace CustomSoundtrack {
         private Dictionary<string, List<string>> playlists = new Dictionary<string, List<string>>();
 
         // current game state
-        private bool bossActive = false;
-        private bool tpOver = false;
+        private enum GameState
+        {
+            Normal,
+            BossFight,
+            PostBoss
+        }
+        private GameState currentState = GameState.Normal;
         private string currentScene = "";
 
         // current playback state
@@ -154,8 +158,7 @@ namespace CustomSoundtrack {
                     start = true;
 
                 if (start && currentScene != scene.name) {
-                    bossActive = false;
-                    tpOver = false;
+                    currentState = GameState.Normal;
                     currentPlaylist = playlists["_default"];
                     currentScene = scene.name;
                     nextPlaylist();
@@ -166,28 +169,15 @@ namespace CustomSoundtrack {
 
             };
 
-            // when you activate the teleporter
-            On.RoR2.TeleporterInteraction.OnInteractionBegin += (orig, self, activator) => {
 
-                orig(self, activator);
-
-                if (!bossActive) {
-                    bossActive = true;
-                    nextPlaylist();
-                }
-
-                if (logging)
-                    log("activated teleporter");
-
-            };
-
-            // when another player activates the teleporter
+            // when tp event starts
             On.RoR2.TeleporterInteraction.RpcClientOnActivated += (orig, self, activator) => {
 
                 orig(self, activator);
 
-                if (!bossActive) {
-                    bossActive = true;
+                if (currentState != GameState.BossFight)
+                {
+                    currentState = GameState.BossFight;
                     nextPlaylist();
                 }
 
@@ -199,9 +189,8 @@ namespace CustomSoundtrack {
             // when tp event ends
             RoR2.TeleporterInteraction.onTeleporterChargedGlobal += (TeleporterInteraction teleporterInteraction) => {
 
-                if (!tpOver) {
-                    bossActive = false;
-                    tpOver = true;
+                if (currentState != GameState.PostBoss) {
+                    currentState = GameState.PostBoss;
                     nextPlaylist();
                 }
 
@@ -215,13 +204,58 @@ namespace CustomSoundtrack {
 
                 orig(self);
 
-                if (!bossActive) {
-                    bossActive = true;
+                if (currentState != GameState.BossFight) {
+                    currentState = GameState.BossFight;
                     nextPlaylist();
                 }
 
                 if (logging)
                     log("started mithrix fight");
+
+            };
+
+            // when the mithrix fight ends
+            On.EntityStates.Missions.BrotherEncounter.BossDeath.OnEnter += (orig, self) => {
+
+                orig(self);
+
+                if (currentState != GameState.PostBoss) {
+                    currentState = GameState.PostBoss;
+                    nextPlaylist();
+                }
+
+                if (logging)
+                    log("finished mithrix fight");
+
+            };
+
+            // when the false son fight starts
+            On.EntityStates.MeridianEvent.Phase1.OnEnter += (orig, self) => {
+
+                orig(self);
+
+                if (currentState != GameState.BossFight) {
+                    currentState = GameState.BossFight;
+                    nextPlaylist();
+                }
+
+                if (logging)
+                    log("started false son fight");
+
+            };
+
+            // when the false son fight ends
+            On.EntityStates.MeridianEvent.Phase3.OnExit += (orig, self) => {
+
+                orig(self); 
+
+                if (currentState != GameState.Normal) {
+                    currentState = GameState.Normal;
+                    nextPlaylist();
+                }
+
+                if (logging)
+                    log("finished false son fight");
 
             };
 
@@ -276,17 +310,22 @@ namespace CustomSoundtrack {
 
             // try to find a playlist for the current stage
             // if no playlist is found, the default playlist is used
-            if (bossActive == false) {
-                if (playlists.ContainsKey(currentScene) && playlists[currentScene].Count > 0)
-                    currentPlaylist = playlists[currentScene];
-            } else if (tpOver == true) {
-                if (postBossPlaylists.ContainsKey(currentScene) && postBossPlaylists[currentScene].Count > 0)
-                    currentPlaylist = playlists[currentScene];
-            } else {
-                if (bossPlaylists.ContainsKey(currentScene) && bossPlaylists[currentScene].Count > 0)
-                    currentPlaylist = bossPlaylists[currentScene];
-                else
-                    return;
+            switch (currentState)
+            {
+                case GameState.Normal:
+                    if (playlists.ContainsKey(currentScene) && playlists[currentScene].Count > 0)
+                        currentPlaylist = playlists[currentScene];
+                    break;
+                case GameState.BossFight:
+                    if (bossPlaylists.ContainsKey(currentScene) && bossPlaylists[currentScene].Count > 0)
+                        currentPlaylist = bossPlaylists[currentScene];
+                    else
+                        return;
+                    break;
+                case GameState.PostBoss:
+                    if (postBossPlaylists.ContainsKey(currentScene) && postBossPlaylists[currentScene].Count > 0)
+                        currentPlaylist = postBossPlaylists[currentScene];
+                    break;
             }
 
             // if playbackMode is set to "next", leave the playlist unchanged and start playing the first track

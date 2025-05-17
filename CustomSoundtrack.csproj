@@ -1,19 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>netstandard2.1</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MMHOOK.RoR2"
-						  Version="2022.9.20">
+		<PackageReference Include="BepInEx.BaseLib" Version="5.4.21" />
+		<PackageReference Include="MMHOOK.RoR2" Version="2025.5.5">
 			<NoWarn>NU1701</NoWarn>
 		</PackageReference>
-		<PackageReference Include="NAudio"
-						  Version="1.10.0" />
-		<PackageReference Include="RoR2BepInExPack"
-						  Version="1.7.0" />
+		<PackageReference Include="NAudio" Version="1.10.0" />
+		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.3.8-r.0" />
+		<PackageReference Include="RoR2BepInExPack" Version="1.7.0" />
 	</ItemGroup>
+
+	<Target Name="CopyNAudioDependencies" AfterTargets="Build">
+		<ItemGroup>
+			<NAudioFiles Include="$(NuGetPackageRoot)naudio\1.10.0\lib\netstandard2.0\*.dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(NAudioFiles)" DestinationFolder="$(OutputPath)" />
+	</Target>
 
 </Project>
