@@ -12,11 +12,13 @@ using System.Threading;
 using UnityEngine.SceneManagement;
 using Path = System.IO.Path;
 
-namespace CustomSoundtrack {
+namespace CustomSoundtrack
+{
 
-    [BepInPlugin("com.speeskees.customsoundtrack", "CustomSoundtrack", "2024.5.1")]
+    [BepInPlugin("com.penumbrah.customsoundtrack", "CustomSoundtrack", "2025.5.18")]
 
-    public class CustomSoundtrack : BaseUnityPlugin {
+    public class CustomSoundtrack : BaseUnityPlugin
+    {
 
         // settings
         private string playbackMode = "next";
@@ -55,7 +57,8 @@ namespace CustomSoundtrack {
         private bool locked = false;
 
         // called when the game is started
-        public void Awake() {
+        public void Awake()
+        {
 
             //// read settings from "settings.json"
 
@@ -70,14 +73,18 @@ namespace CustomSoundtrack {
 
             // read "settings.json"
             Settings settings = null;
-            try {
+            try
+            {
                 settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(Path.Combine(pluginPath, "settings.json")));
-            } catch (Exception error) {
+            }
+            catch (Exception error)
+            {
                 log("could not parse settings.json: " + Environment.NewLine + error);
             }
 
             // load settings
-            if (settings != null) {
+            if (settings != null)
+            {
 
                 // load track directory
                 if (settings.trackPath != null && settings.trackPath != "")
@@ -91,7 +98,8 @@ namespace CustomSoundtrack {
                 if (settings.playlists != null)
                     foreach (var playlist in settings.playlists)
                         if (playlist.ContainsKey("scenes"))
-                            foreach (var scene in playlist["scenes"]) {
+                            foreach (var scene in playlist["scenes"])
+                            {
 
                                 if (!playlists.Keys.Contains(scene))
                                     playlists.Add(scene, new List<string>());
@@ -104,7 +112,7 @@ namespace CustomSoundtrack {
                                 if (playlist.ContainsKey("bossTracks"))
                                     foreach (var bossTrack in playlist["bossTracks"])
                                         bossPlaylists[scene].Add(Path.Combine(trackPath, bossTrack));
-                                
+
                                 if (!postBossPlaylists.Keys.Contains(scene))
                                     postBossPlaylists.Add(scene, new List<string>());
                                 if (playlist.ContainsKey("postBossTracks"))
@@ -121,27 +129,31 @@ namespace CustomSoundtrack {
                 .Where(fileName => fileName.ToLower().EndsWith(".aiff") || fileName.ToLower().EndsWith(".mp3") || fileName.ToLower().EndsWith(".wav")))
                 playlists["_default"].Add(track);
 
-            if (logging) {
+            if (logging)
+            {
 
                 log("track directory: " + trackPath);
                 log("playback mode: " + playbackMode);
 
                 log("playlists: ");
-                foreach (var scene in playlists.Keys) {
+                foreach (var scene in playlists.Keys)
+                {
                     log("    " + scene + ": ");
                     foreach (var track in playlists[scene])
                         log("        " + track);
                 }
 
                 log("boss playlists: ");
-                foreach (var scene in bossPlaylists.Keys) {
+                foreach (var scene in bossPlaylists.Keys)
+                {
                     log("    " + scene + ": ");
                     foreach (var track in bossPlaylists[scene])
                         log("        " + track);
                 }
 
                 log("tp playlists: ");
-                foreach (var scene in postBossPlaylists.Keys) {
+                foreach (var scene in postBossPlaylists.Keys)
+                {
                     log("    " + scene + ": ");
                     foreach (var track in postBossPlaylists[scene])
                         log("        " + track);
@@ -157,7 +169,8 @@ namespace CustomSoundtrack {
                 if (scene.name == "splash")
                     start = true;
 
-                if (start && currentScene != scene.name) {
+                if (start && currentScene != scene.name)
+                {
                     currentState = GameState.Normal;
                     currentPlaylist = playlists["_default"];
                     currentScene = scene.name;
@@ -175,7 +188,7 @@ namespace CustomSoundtrack {
 
                 orig(self, activator);
 
-                if (currentState != GameState.BossFight)
+                if (currentState != GameState.BossFight && currentState != GameState.PostBoss)
                 {
                     currentState = GameState.BossFight;
                     nextPlaylist();
@@ -189,14 +202,15 @@ namespace CustomSoundtrack {
             // when tp event ends
             RoR2.TeleporterInteraction.onTeleporterChargedGlobal += (TeleporterInteraction teleporterInteraction) => {
 
-                if (currentState != GameState.PostBoss) {
+                if (currentState != GameState.PostBoss)
+                {
                     currentState = GameState.PostBoss;
                     nextPlaylist();
                 }
 
                 if (logging)
                     log("tp event over");
-                
+
             };
 
             // when the mithrix fight starts
@@ -204,7 +218,8 @@ namespace CustomSoundtrack {
 
                 orig(self);
 
-                if (currentState != GameState.BossFight) {
+                if (currentState != GameState.BossFight)
+                {
                     currentState = GameState.BossFight;
                     nextPlaylist();
                 }
@@ -219,7 +234,8 @@ namespace CustomSoundtrack {
 
                 orig(self);
 
-                if (currentState != GameState.PostBoss) {
+                if (currentState != GameState.PostBoss)
+                {
                     currentState = GameState.PostBoss;
                     nextPlaylist();
                 }
@@ -234,7 +250,8 @@ namespace CustomSoundtrack {
 
                 orig(self);
 
-                if (currentState != GameState.BossFight) {
+                if (currentState != GameState.BossFight)
+                {
                     currentState = GameState.BossFight;
                     nextPlaylist();
                 }
@@ -247,9 +264,10 @@ namespace CustomSoundtrack {
             // when the false son fight ends
             On.EntityStates.MeridianEvent.Phase3.OnExit += (orig, self) => {
 
-                orig(self); 
+                orig(self);
 
-                if (currentState != GameState.Normal) {
+                if (currentState != GameState.Normal)
+                {
                     currentState = GameState.Normal;
                     nextPlaylist();
                 }
@@ -264,13 +282,15 @@ namespace CustomSoundtrack {
 
                 orig(self, isFocussed);
 
-                if (isFocussed && player.PlaybackState == PlaybackState.Paused) {
+                if (isFocussed && player.PlaybackState == PlaybackState.Paused)
+                {
                     paused = false;
                     if (!locked)
                         player.Play();
                 }
 
-                if (!isFocussed && player.PlaybackState == PlaybackState.Playing) {
+                if (!isFocussed && player.PlaybackState == PlaybackState.Playing)
+                {
                     paused = true;
                     if (!locked)
                         player.Pause();
@@ -284,18 +304,21 @@ namespace CustomSoundtrack {
 
         }
 
-        private void disableOriginalSoundtrack(On.RoR2.MusicTrackOverride.orig_PickMusicTrack orig, MusicController self, ref MusicTrackDef track) {
+        private void disableOriginalSoundtrack(On.RoR2.MusicTrackOverride.orig_PickMusicTrack orig, MusicController self, ref MusicTrackDef track)
+        {
             orig(self, ref track);
             track = null;
         }
 
-        private void disableOriginalSoundtrack(On.RoR2.MusicController.orig_PickCurrentTrack orig, MusicController self, ref MusicTrackDef track) {
+        private void disableOriginalSoundtrack(On.RoR2.MusicController.orig_PickCurrentTrack orig, MusicController self, ref MusicTrackDef track)
+        {
             orig(self, ref track);
             track = null;
         }
 
         // called on every frame
-        public void Update() {
+        public void Update()
+        {
 
             // play the next track if playback has stopped
             if (start && !locked && player.PlaybackState == PlaybackState.Stopped)
@@ -306,7 +329,8 @@ namespace CustomSoundtrack {
         }
 
         // select and start playing the next playlist
-        private void nextPlaylist() {
+        private void nextPlaylist()
+        {
 
             // try to find a playlist for the current stage
             // if no playlist is found, the default playlist is used
@@ -329,7 +353,8 @@ namespace CustomSoundtrack {
             }
 
             // if playbackMode is set to "next", leave the playlist unchanged and start playing the first track
-            if (playbackMode == "next") {
+            if (playbackMode == "next")
+            {
                 nextTrack();
                 return;
             }
@@ -337,7 +362,8 @@ namespace CustomSoundtrack {
             // if playbackMode is set to "shuffle", randomize the playlist and start playing the first track
             var randomizer = new Random();
             currentPlaylist = currentPlaylist.OrderBy(_ => randomizer.Next()).ToList();
-            if (playbackMode == "shuffle") {
+            if (playbackMode == "shuffle")
+            {
                 nextTrack();
                 return;
             }
@@ -349,13 +375,16 @@ namespace CustomSoundtrack {
         }
 
         // select and start the next track
-        private void nextTrack() {
+        private void nextTrack()
+        {
 
-            if (currentPlaylist.Count > 0) {
+            if (currentPlaylist.Count > 0)
+            {
 
                 // select the first track from the current playlist
                 var nextTrack = currentPlaylist[0];
-                if (nextTrack != currentTrack || player.PlaybackState == PlaybackState.Stopped) {
+                if (nextTrack != currentTrack || player.PlaybackState == PlaybackState.Stopped)
+                {
 
                     var oldFadeInOutSampleProvider = currentFadeInOutSampleProvider;
 
@@ -370,7 +399,8 @@ namespace CustomSoundtrack {
 
                     applyVolume();
 
-                    if (logging) {
+                    if (logging)
+                    {
 
                         log("current track: " + currentTrack);
 
@@ -380,7 +410,8 @@ namespace CustomSoundtrack {
 
                     }
 
-                    if (!locked) {
+                    if (!locked)
+                    {
 
                         locked = true;
 
@@ -390,7 +421,8 @@ namespace CustomSoundtrack {
                         new Thread(() => {
 
                             // if still playing, fade out the current track and stop playing
-                            if (player.PlaybackState != PlaybackState.Stopped) {
+                            if (player.PlaybackState != PlaybackState.Stopped)
+                            {
 
                                 oldTrack.BeginFadeOut(1500);
                                 Thread.Sleep(1500);
@@ -416,8 +448,10 @@ namespace CustomSoundtrack {
         }
 
         // read and apply the volume from the settings menu to the current track
-        private void applyVolume() {
-            if (currentAudioFileReader != null) {
+        private void applyVolume()
+        {
+            if (currentAudioFileReader != null)
+            {
                 float.TryParse(AudioManager.cvVolumeMaster.GetString(), out float masterVolume);
                 float.TryParse(AudioManager.cvVolumeMsx.GetString(), out float musicVolume);
                 masterVolume /= 100f;
@@ -426,13 +460,15 @@ namespace CustomSoundtrack {
             }
         }
 
-        private void log(string message) {
+        private void log(string message)
+        {
             File.AppendAllText(logPath, "[" + DateTime.Now.ToString("hh:mm:ss") + "] " + message + Environment.NewLine);
         }
 
     }
 
-    public class Settings {
+    public class Settings
+    {
         public string playbackMode { get; set; }
         public string trackPath { get; set; }
         public List<Dictionary<string, List<string>>> playlists { get; set; }
